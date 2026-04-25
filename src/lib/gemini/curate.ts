@@ -9,7 +9,7 @@ const CardSchema = z.object({
   category: z.enum(['pick', 'tool', 'tip', 'deep', 'kr']),
   title: z.string().min(1).max(120),
   summary: z.array(z.string()).length(3),
-  whyMatters: z.string().min(10).max(200),
+  whyMatters: z.string().min(10).max(220),
   url: z.string().url(),
   sourceTitle: z.string(),
   relevanceScore: z.number().min(1).max(10).optional(),

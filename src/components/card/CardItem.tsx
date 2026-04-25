@@ -60,7 +60,7 @@ export function CardItem({ card, position, total }: CardItemProps) {
       <div className="mt-auto pt-6">
         <div className="rounded-2xl border border-white/10 bg-black/30 p-4 backdrop-blur-sm">
           <p className="text-xs font-semibold uppercase tracking-wider text-amber-300">
-            🎯 왜 한국 개발자에게 중요한가
+            🎯 누구에게 유용한가
           </p>
           <p className="mt-2 text-sm leading-relaxed text-zinc-100">
             {card.whyMatters}

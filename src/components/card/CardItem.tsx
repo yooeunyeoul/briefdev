@@ -1,3 +1,5 @@
+'use client'
+
 import type { Card } from '@/lib/gemini/curate'
 import type { ViewableCard } from '@/lib/db/types'
 

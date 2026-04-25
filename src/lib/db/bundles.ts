@@ -82,6 +82,35 @@ export async function saveBundle(opts: {
   return { bundleId: bundle.id, bundleDate: bundle.bundle_date }
 }
 
+export async function getCardById(id: string): Promise<{
+  card: import('./types').ViewableCard
+  bundleDate: string
+} | null> {
+  const supabase = createServiceClient()
+
+  const { data, error } = await supabase
+    .from('cards')
+    .select('*, bundle:bundles(bundle_date)')
+    .eq('id', id)
+    .maybeSingle<DbCard & { bundle: { bundle_date: string } | null }>()
+
+  if (error) throw new Error(`getCardById failed: ${error.message}`)
+  if (!data) return null
+
+  return {
+    card: {
+      id: data.id,
+      category: data.category,
+      title: data.title,
+      summary: data.summary,
+      whyMatters: data.why_matters,
+      url: data.url,
+      sourceTitle: data.source_title ?? '',
+    },
+    bundleDate: data.bundle?.bundle_date ?? '',
+  }
+}
+
 export async function getLatestBundle(): Promise<BundleWithCards | null> {
   const supabase = createServiceClient()
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, type PointerEvent } from 'react'
+import Link from 'next/link'
 import type { ViewableCard } from '@/lib/db/types'
 import { CardItem } from './CardItem'
 
@@ -133,6 +134,13 @@ export function CardSwiper({ cards, isAuthenticated }: CardSwiperProps) {
           다음 →
         </button>
       </div>
+
+      <Link
+        href={`/c/${card.id}`}
+        className="text-center text-xs text-zinc-500 underline-offset-4 hover:text-zinc-300 hover:underline"
+      >
+        이 카드 공유하기 →
+      </Link>
     </div>
   )
 }

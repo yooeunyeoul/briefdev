@@ -23,7 +23,9 @@ async function loadCards(): Promise<LoadResult> {
     }
     return {
       ok: false,
-      error: '아직 큐레이션이 준비되지 않았어요.',
+      error: latest
+        ? '오늘은 적합한 글이 부족했어요. 5장을 강제로 채우는 대신 비워두기로 결정했습니다.'
+        : '아직 큐레이션이 준비되지 않았어요.',
     }
   } catch (err) {
     return {
@@ -58,7 +60,9 @@ export default async function HomePage() {
           <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
             BriefDev
           </p>
-          <h1 className="mt-1 text-2xl font-bold text-zinc-100">오늘의 5장</h1>
+          <h1 className="mt-1 text-2xl font-bold text-zinc-100">
+            오늘의 {result.ok ? result.cards.length : 0}장
+          </h1>
         </div>
         {result.ok && (
           <time className="text-sm text-zinc-400">

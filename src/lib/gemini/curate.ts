@@ -12,11 +12,15 @@ const CardSchema = z.object({
   whyMatters: z.string().min(10).max(200),
   url: z.string().url(),
   sourceTitle: z.string(),
+  relevanceScore: z.number().min(1).max(10).optional(),
 })
 
 const CurationSchema = z.object({
-  cards: z.array(CardSchema).min(1).max(5),
+  cards: z.array(CardSchema).min(0).max(5),
 })
+
+// v4 quality threshold — discard cards below this score (defense in depth)
+const RELEVANCE_THRESHOLD = 8
 
 export type Card = z.infer<typeof CardSchema>
 export type Curation = z.infer<typeof CurationSchema>
@@ -101,7 +105,22 @@ export async function curate(
 
   try {
     const parsed = JSON.parse(text)
-    return CurationSchema.parse(parsed)
+    const curation = CurationSchema.parse(parsed)
+
+    // v4+ defense: drop any card the LLM emitted with a sub-threshold score.
+    if (version >= 'v4') {
+      const before = curation.cards.length
+      curation.cards = curation.cards.filter(
+        (c) => c.relevanceScore === undefined || c.relevanceScore >= RELEVANCE_THRESHOLD,
+      )
+      if (curation.cards.length !== before) {
+        console.info(
+          `[curate] dropped ${before - curation.cards.length} sub-threshold cards (<${RELEVANCE_THRESHOLD})`,
+        )
+      }
+    }
+
+    return curation
   } catch (err) {
     console.error('Curation parse failed:', text.slice(0, 500))
     throw new Error(

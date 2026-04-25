@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 // Vercel Hobby allows up to 300s for serverless. v3 fetches 30 article bodies.
 export const maxDuration = 300
 
-const PROMPT_VERSION = process.env.CURATION_PROMPT_VERSION ?? 'v3'
+const PROMPT_VERSION = process.env.CURATION_PROMPT_VERSION ?? 'v4'
 
 function isAuthorized(req: NextRequest): boolean {
   const secret = process.env.CRON_SECRET

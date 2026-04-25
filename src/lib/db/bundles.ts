@@ -61,6 +61,10 @@ export async function saveBundle(opts: {
   // Replace cards for this bundle (idempotent re-run)
   await supabase.from('cards').delete().eq('bundle_id', bundle.id)
 
+  if (opts.cards.length === 0) {
+    return { bundleId: bundle.id, bundleDate: bundle.bundle_date }
+  }
+
   const cardRows = opts.cards.map((c, i) => ({
     bundle_id: bundle.id,
     position: i,
@@ -81,15 +85,18 @@ export async function saveBundle(opts: {
 export async function getLatestBundle(): Promise<BundleWithCards | null> {
   const supabase = createServiceClient()
 
-  const { data: bundle, error: bundleErr } = await supabase
+  // Find the most recent bundle that actually has cards (skip empty days).
+  const { data: bundles, error: bundleErr } = await supabase
     .from('bundles')
-    .select('*')
+    .select('*, cards(count)')
     .order('bundle_date', { ascending: false })
-    .limit(1)
-    .maybeSingle<DbBundle>()
+    .limit(7)
+    .returns<(DbBundle & { cards: { count: number }[] })[]>()
 
   if (bundleErr) throw new Error(`getLatestBundle failed: ${bundleErr.message}`)
-  if (!bundle) return null
+  if (!bundles || bundles.length === 0) return null
+
+  const bundle = bundles.find((b) => (b.cards?.[0]?.count ?? 0) > 0) ?? bundles[0]
 
   const { data: cards, error: cardsErr } = await supabase
     .from('cards')

@@ -1,4 +1,5 @@
 import type { Card } from '@/lib/gemini/curate'
+import type { ViewableCard } from '@/lib/db/types'
 
 const CATEGORY_META: Record<
   Card['category'],
@@ -12,7 +13,7 @@ const CATEGORY_META: Record<
 }
 
 export type CardItemProps = {
-  card: Card
+  card: ViewableCard
   position: number
   total: number
 }

@@ -103,6 +103,7 @@ export async function getLatestBundle(): Promise<BundleWithCards | null> {
   return {
     bundle,
     cards: (cards ?? []).map((c) => ({
+      id: c.id,
       category: c.category,
       title: c.title,
       summary: c.summary,

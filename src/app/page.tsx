@@ -1,12 +1,14 @@
+import Link from 'next/link'
 import { CardSwiper } from '@/components/card/CardSwiper'
 import { getLatestBundle } from '@/lib/db/bundles'
-import type { Card } from '@/lib/gemini/curate'
+import { createClient } from '@/lib/supabase/server'
+import type { ViewableCard } from '@/lib/db/types'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 type LoadResult =
-  | { ok: true; cards: Card[]; bundleDate: string; source: 'db' }
+  | { ok: true; cards: ViewableCard[]; bundleDate: string }
   | { ok: false; error: string }
 
 async function loadCards(): Promise<LoadResult> {
@@ -17,12 +19,11 @@ async function loadCards(): Promise<LoadResult> {
         ok: true,
         cards: latest.cards,
         bundleDate: latest.bundle.bundle_date,
-        source: 'db',
       }
     }
     return {
       ok: false,
-      error: '아직 큐레이션이 준비되지 않았어요. /api/cron/collect 를 먼저 호출해주세요.',
+      error: '아직 큐레이션이 준비되지 않았어요.',
     }
   } catch (err) {
     return {
@@ -42,10 +43,16 @@ function formatBundleDate(iso: string): string {
 }
 
 export default async function HomePage() {
-  const result = await loadCards()
+  const [result, supabase] = await Promise.all([
+    loadCards(),
+    createClient(),
+  ])
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-4 pb-16 pt-10">
+    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-4 pb-16 pt-8">
       <header className="flex items-baseline justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
@@ -60,15 +67,41 @@ export default async function HomePage() {
         )}
       </header>
 
+      <div className="flex items-center justify-between text-xs text-zinc-400">
+        {user ? (
+          <>
+            <span className="truncate">
+              <span className="opacity-60">로그인:</span>{' '}
+              <span className="text-zinc-200">{user.email}</span>
+            </span>
+            <form action="/api/auth/signout" method="post">
+              <button
+                type="submit"
+                className="rounded-full bg-zinc-800 px-3 py-1 text-zinc-200 transition hover:bg-zinc-700"
+              >
+                로그아웃
+              </button>
+            </form>
+          </>
+        ) : (
+          <>
+            <span className="opacity-60">기록을 남기고 싶다면</span>
+            <Link
+              href="/login"
+              className="rounded-full bg-zinc-100 px-3 py-1 font-medium text-zinc-900"
+            >
+              로그인
+            </Link>
+          </>
+        )}
+      </div>
+
       {result.ok ? (
-        <CardSwiper cards={result.cards} />
+        <CardSwiper cards={result.cards} isAuthenticated={Boolean(user)} />
       ) : (
         <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 text-sm text-amber-100">
           <p className="font-semibold">큐레이션이 비어 있어요</p>
           <p className="mt-2 text-xs opacity-80">{result.error}</p>
-          <p className="mt-3 text-xs opacity-60">
-            로컬 테스트: <code className="rounded bg-black/30 px-1.5 py-0.5">curl &quot;http://localhost:3000/api/cron/collect?token=$CRON_SECRET&quot;</code>
-          </p>
         </div>
       )}
 

@@ -21,7 +21,10 @@ export type DbCard = {
   created_at: string
 }
 
+/** Card with DB id, used for rendering + view tracking. */
+export type ViewableCard = Card & { id: string }
+
 export type BundleWithCards = {
   bundle: DbBundle
-  cards: Card[]
+  cards: ViewableCard[]
 }

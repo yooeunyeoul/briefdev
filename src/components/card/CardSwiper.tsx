@@ -1,20 +1,47 @@
 'use client'
 
-import { useState, useRef, type PointerEvent } from 'react'
-import type { Card } from '@/lib/gemini/curate'
+import { useState, useRef, useEffect, type PointerEvent } from 'react'
+import type { ViewableCard } from '@/lib/db/types'
 import { CardItem } from './CardItem'
 
 const SWIPE_THRESHOLD = 60 // px
 
 export type CardSwiperProps = {
-  cards: Card[]
+  cards: ViewableCard[]
+  isAuthenticated: boolean
 }
 
-export function CardSwiper({ cards }: CardSwiperProps) {
+async function trackView(cardId: string, readSeconds: number) {
+  try {
+    await fetch('/api/views', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ cardId, readSeconds }),
+      keepalive: true,
+    })
+  } catch {
+    // analytics is best-effort
+  }
+}
+
+export function CardSwiper({ cards, isAuthenticated }: CardSwiperProps) {
   const [index, setIndex] = useState(0)
   const [drag, setDrag] = useState(0)
   const startX = useRef<number | null>(null)
+  const enteredAt = useRef<number>(Date.now())
   const total = cards.length
+
+  // Track view when current card changes (best-effort)
+  useEffect(() => {
+    enteredAt.current = Date.now()
+    if (!isAuthenticated || !cards[index]) return
+    const cardId = cards[index].id
+
+    return () => {
+      const seconds = Math.round((Date.now() - enteredAt.current) / 1000)
+      void trackView(cardId, seconds)
+    }
+  }, [index, cards, isAuthenticated])
 
   function next() {
     setIndex((i) => Math.min(i + 1, total - 1))

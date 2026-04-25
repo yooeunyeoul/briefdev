@@ -88,7 +88,7 @@ export function CardSwiper({ cards, isAuthenticated, siteUrl }: CardSwiperProps)
   const card = cards[index]
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 pb-20">
       <div
         className="relative w-full select-none touch-pan-y"
         onPointerDown={onPointerDown}
@@ -107,19 +107,32 @@ export function CardSwiper({ cards, isAuthenticated, siteUrl }: CardSwiperProps)
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-2 px-1">
+      <ShareBar
+        url={`${siteUrl}/c/${card.id}`}
+        title={card.title}
+        text={card.whyMatters}
+        cardId={card.id}
+      />
+
+      {/* Sticky pagination — pinned to viewport bottom so the buttons don't
+          jump as cards have varying heights. */}
+      <div className="sticky bottom-3 z-20 mx-auto flex items-center gap-3 rounded-full border border-white/10 bg-zinc-900/85 px-2 py-1.5 shadow-2xl backdrop-blur-md">
         <button
           type="button"
           onClick={prev}
           disabled={index === 0}
-          className="rounded-full bg-zinc-800 px-4 py-2 text-sm text-zinc-100 disabled:opacity-30"
+          aria-label="이전 카드"
+          className="rounded-full bg-zinc-800 px-3 py-1.5 text-sm text-zinc-100 transition disabled:opacity-30"
         >
-          ← 이전
+          ←
         </button>
         <div className="flex gap-1.5">
           {cards.map((_, i) => (
-            <span
+            <button
               key={i}
+              type="button"
+              onClick={() => setIndex(i)}
+              aria-label={`카드 ${i + 1}로 이동`}
               className={`h-1.5 rounded-full transition-all ${
                 i === index ? 'w-8 bg-zinc-100' : 'w-1.5 bg-zinc-600'
               }`}
@@ -130,18 +143,12 @@ export function CardSwiper({ cards, isAuthenticated, siteUrl }: CardSwiperProps)
           type="button"
           onClick={next}
           disabled={index === total - 1}
-          className="rounded-full bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-900 disabled:opacity-30"
+          aria-label="다음 카드"
+          className="rounded-full bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-900 transition disabled:opacity-30"
         >
-          다음 →
+          →
         </button>
       </div>
-
-      <ShareBar
-        url={`${siteUrl}/c/${card.id}`}
-        title={card.title}
-        text={card.whyMatters}
-        cardId={card.id}
-      />
     </div>
   )
 }

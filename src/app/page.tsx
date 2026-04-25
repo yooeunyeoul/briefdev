@@ -98,7 +98,11 @@ export default async function HomePage() {
       </div>
 
       {result.ok ? (
-        <CardSwiper cards={result.cards} isAuthenticated={Boolean(user)} />
+        <CardSwiper
+          cards={result.cards}
+          isAuthenticated={Boolean(user)}
+          siteUrl={(process.env.NEXT_PUBLIC_APP_URL ?? 'https://briefdev.vercel.app').replace(/\/$/, '')}
+        />
       ) : (
         <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 text-sm text-amber-100">
           <p className="font-semibold">큐레이션이 비어 있어요</p>

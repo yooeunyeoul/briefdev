@@ -61,7 +61,7 @@ export default async function CardPage({ params }: { params: Promise<Params> }) 
         <Link href="/" className="text-xs font-semibold uppercase tracking-widest text-zinc-500 hover:text-zinc-300">
           ← BriefDev
         </Link>
-        <span className="text-xs text-zinc-500">한 장 보기</span>
+        <span className="text-xs text-zinc-500">공유받은 카드</span>
       </header>
 
       <CardItem card={card} position={0} total={1} />

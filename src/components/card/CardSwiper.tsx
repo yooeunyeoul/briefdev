@@ -1,15 +1,16 @@
 'use client'
 
 import { useState, useRef, useEffect, type PointerEvent } from 'react'
-import Link from 'next/link'
 import type { ViewableCard } from '@/lib/db/types'
 import { CardItem } from './CardItem'
+import { ShareBar } from './ShareBar'
 
 const SWIPE_THRESHOLD = 60 // px
 
 export type CardSwiperProps = {
   cards: ViewableCard[]
   isAuthenticated: boolean
+  siteUrl: string
 }
 
 async function trackView(cardId: string, readSeconds: number) {
@@ -25,7 +26,7 @@ async function trackView(cardId: string, readSeconds: number) {
   }
 }
 
-export function CardSwiper({ cards, isAuthenticated }: CardSwiperProps) {
+export function CardSwiper({ cards, isAuthenticated, siteUrl }: CardSwiperProps) {
   const [index, setIndex] = useState(0)
   const [drag, setDrag] = useState(0)
   const startX = useRef<number | null>(null)
@@ -135,12 +136,12 @@ export function CardSwiper({ cards, isAuthenticated }: CardSwiperProps) {
         </button>
       </div>
 
-      <Link
-        href={`/c/${card.id}`}
-        className="text-center text-xs text-zinc-500 underline-offset-4 hover:text-zinc-300 hover:underline"
-      >
-        이 카드 공유하기 →
-      </Link>
+      <ShareBar
+        url={`${siteUrl}/c/${card.id}`}
+        title={card.title}
+        text={card.whyMatters}
+        cardId={card.id}
+      />
     </div>
   )
 }

@@ -1,0 +1,26 @@
+{
+  "version": "1.5.5",
+  "currentFeature": "briefdev",
+  "phase": "plan",
+  "level": "dynamic",
+  "deadline": "2026-04-28",
+  "context": "Wrtn Technologies Product Engineer 과제",
+  "features": {
+    "briefdev": {
+      "phase": "plan",
+      "startedAt": "2026-04-25",
+      "deadline": "2026-04-28",
+      "documents": {
+        "plan": "docs/01-plan/features/briefdev.plan.md"
+      }
+    }
+  },
+  "stack": {
+    "framework": "Next.js 14",
+    "language": "TypeScript",
+    "styling": "Tailwind + shadcn/ui",
+    "backend": "Supabase",
+    "llm": "Google Gemini 1.5 Flash",
+    "deploy": "Vercel"
+  }
+}

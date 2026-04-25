@@ -85,13 +85,16 @@ alter table public.articles enable row level security;
 alter table public.bundles enable row level security;
 alter table public.cards enable row level security;
 
-create policy if not exists "articles_read_all" on public.articles
+drop policy if exists "articles_read_all" on public.articles;
+create policy "articles_read_all" on public.articles
   for select using (true);
 
-create policy if not exists "bundles_read_all" on public.bundles
+drop policy if exists "bundles_read_all" on public.bundles;
+create policy "bundles_read_all" on public.bundles
   for select using (true);
 
-create policy if not exists "cards_read_all" on public.cards
+drop policy if exists "cards_read_all" on public.cards;
+create policy "cards_read_all" on public.cards
   for select using (true);
 
 -- Writes happen only via service_role from API routes (bypasses RLS)
@@ -99,13 +102,16 @@ create policy if not exists "cards_read_all" on public.cards
 -- user_views: users can only see/insert their own
 alter table public.user_views enable row level security;
 
-create policy if not exists "user_views_select_own" on public.user_views
+drop policy if exists "user_views_select_own" on public.user_views;
+create policy "user_views_select_own" on public.user_views
   for select using (auth.uid() = user_id);
 
-create policy if not exists "user_views_insert_own" on public.user_views
+drop policy if exists "user_views_insert_own" on public.user_views;
+create policy "user_views_insert_own" on public.user_views
   for insert with check (auth.uid() = user_id);
 
-create policy if not exists "user_views_update_own" on public.user_views
+drop policy if exists "user_views_update_own" on public.user_views;
+create policy "user_views_update_own" on public.user_views
   for update using (auth.uid() = user_id);
 
 -- ============================================================

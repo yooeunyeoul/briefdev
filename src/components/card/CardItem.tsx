@@ -12,6 +12,14 @@ const CATEGORY_META: Record<
   kr: { emoji: '🎯', label: '한국 화제', tone: 'from-purple-500/20 to-pink-500/20' },
 }
 
+function getHostname(rawUrl: string): string {
+  try {
+    return new URL(rawUrl).hostname.replace(/^www\./, '')
+  } catch {
+    return ''
+  }
+}
+
 export type CardItemProps = {
   card: ViewableCard
   position: number
@@ -20,6 +28,7 @@ export type CardItemProps = {
 
 export function CardItem({ card, position, total }: CardItemProps) {
   const meta = CATEGORY_META[card.category]
+  const host = getHostname(card.url)
 
   return (
     <article
@@ -58,20 +67,29 @@ export function CardItem({ card, position, total }: CardItemProps) {
           </p>
         </div>
 
-        <div className="mt-4 flex items-center justify-between gap-3 text-xs">
-          <a
-            href={card.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            onPointerDown={(e) => e.stopPropagation()}
-            className="relative z-10 inline-flex items-center gap-1 rounded-full bg-white/15 px-3 py-1.5 font-medium text-zinc-50 backdrop-blur-sm transition hover:bg-white/25 active:scale-95"
-          >
+        <a
+          href={card.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          onPointerDown={(e) => e.stopPropagation()}
+          className="group relative z-10 mt-4 flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3 transition hover:bg-white/20 active:scale-[0.99]"
+        >
+          <div className="min-w-0 flex-1">
+            {host && (
+              <p className="text-[11px] font-medium tracking-wide text-zinc-400">
+                {host}
+              </p>
+            )}
+            {card.sourceTitle && (
+              <p className="mt-0.5 truncate text-xs text-zinc-200">
+                {card.sourceTitle}
+              </p>
+            )}
+          </div>
+          <span className="shrink-0 text-sm font-semibold text-zinc-50 transition group-hover:translate-x-0.5">
             원문 읽기 →
-          </a>
-          {card.sourceTitle && (
-            <span className="truncate text-right text-zinc-400">{card.sourceTitle}</span>
-          )}
-        </div>
+          </span>
+        </a>
       </div>
     </article>
   )

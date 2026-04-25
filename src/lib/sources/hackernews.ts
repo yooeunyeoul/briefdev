@@ -32,6 +32,36 @@ async function fetchJson<T>(url: string, schema: z.ZodType<T>): Promise<T> {
   return schema.parse(await res.json())
 }
 
+const PAYWALL_HOSTS = new Set([
+  'bloomberg.com',
+  'www.bloomberg.com',
+  'wsj.com',
+  'www.wsj.com',
+  'nytimes.com',
+  'www.nytimes.com',
+  'ft.com',
+  'www.ft.com',
+  'theinformation.com',
+  'www.theinformation.com',
+  'economist.com',
+  'www.economist.com',
+  'businessinsider.com',
+  'www.businessinsider.com',
+  'washingtonpost.com',
+  'www.washingtonpost.com',
+  'barrons.com',
+  'www.barrons.com',
+])
+
+function isPaywalled(rawUrl: string): boolean {
+  try {
+    const host = new URL(rawUrl).hostname.toLowerCase()
+    return PAYWALL_HOSTS.has(host)
+  } catch {
+    return false
+  }
+}
+
 export async function fetchHackerNewsTop(limit = 30): Promise<RawArticle[]> {
   const ids = await fetchJson(`${HN_BASE}/topstories.json`, z.array(z.number()))
   const topIds = ids.slice(0, limit)
@@ -44,6 +74,7 @@ export async function fetchHackerNewsTop(limit = 30): Promise<RawArticle[]> {
     .filter((it): it is HnItem & { title: string; url: string } =>
       it.type === 'story' && Boolean(it.title) && Boolean(it.url),
     )
+    .filter((it) => !isPaywalled(it.url))
     .map((it) => ({
       source: 'hackernews' as const,
       externalId: String(it.id),

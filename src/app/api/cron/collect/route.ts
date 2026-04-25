@@ -6,7 +6,7 @@ import { saveArticles, saveBundle } from '@/lib/db/bundles'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
-const PROMPT_VERSION = process.env.CURATION_PROMPT_VERSION ?? 'v1'
+const PROMPT_VERSION = process.env.CURATION_PROMPT_VERSION ?? 'v2'
 
 function isAuthorized(req: NextRequest): boolean {
   const secret = process.env.CRON_SECRET

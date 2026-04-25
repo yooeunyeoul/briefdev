@@ -67,32 +67,26 @@ export default async function HomePage() {
         )}
       </header>
 
-      <div className="flex items-center justify-between text-xs text-zinc-400">
+      <div className="flex items-center justify-end gap-3 text-xs text-zinc-500">
         {user ? (
           <>
-            <span className="truncate">
-              <span className="opacity-60">로그인:</span>{' '}
-              <span className="text-zinc-200">{user.email}</span>
-            </span>
+            <span className="truncate text-zinc-400">{user.email}</span>
             <form action="/api/auth/signout" method="post">
               <button
                 type="submit"
-                className="rounded-full bg-zinc-800 px-3 py-1 text-zinc-200 transition hover:bg-zinc-700"
+                className="text-zinc-500 underline-offset-4 hover:text-zinc-300 hover:underline"
               >
                 로그아웃
               </button>
             </form>
           </>
         ) : (
-          <>
-            <span className="opacity-60">기록을 남기고 싶다면</span>
-            <Link
-              href="/login"
-              className="rounded-full bg-zinc-100 px-3 py-1 font-medium text-zinc-900"
-            >
-              로그인
-            </Link>
-          </>
+          <Link
+            href="/login"
+            className="text-zinc-500 underline-offset-4 hover:text-zinc-300 hover:underline"
+          >
+            로그인 (선택)
+          </Link>
         )}
       </div>
 

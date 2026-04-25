@@ -50,13 +50,23 @@ export function CardSwiper({ cards, isAuthenticated }: CardSwiperProps) {
     setIndex((i) => Math.max(i - 1, 0))
   }
 
+  function isInteractive(el: EventTarget | null): boolean {
+    if (!(el instanceof Element)) return false
+    return Boolean(el.closest('a, button, input, textarea, [role="button"]'))
+  }
+
   function onPointerDown(e: PointerEvent<HTMLDivElement>) {
+    if (isInteractive(e.target)) return // let clicks through
     startX.current = e.clientX
-    e.currentTarget.setPointerCapture(e.pointerId)
   }
   function onPointerMove(e: PointerEvent<HTMLDivElement>) {
     if (startX.current === null) return
-    setDrag(e.clientX - startX.current)
+    const dx = e.clientX - startX.current
+    // Capture pointer only after a real drag starts so child clicks still work
+    if (Math.abs(dx) > 6 && !e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.setPointerCapture(e.pointerId)
+    }
+    setDrag(dx)
   }
   function onPointerUp() {
     if (drag > SWIPE_THRESHOLD) prev()

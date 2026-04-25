@@ -58,17 +58,18 @@ export function CardItem({ card, position, total }: CardItemProps) {
           </p>
         </div>
 
-        <div className="mt-4 flex items-center justify-between text-xs text-zinc-400">
+        <div className="mt-4 flex items-center justify-between gap-3 text-xs">
           <a
             href={card.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="underline-offset-4 hover:underline"
+            onPointerDown={(e) => e.stopPropagation()}
+            className="relative z-10 inline-flex items-center gap-1 rounded-full bg-white/15 px-3 py-1.5 font-medium text-zinc-50 backdrop-blur-sm transition hover:bg-white/25 active:scale-95"
           >
             원문 읽기 →
           </a>
           {card.sourceTitle && (
-            <span className="truncate pl-3 text-right">{card.sourceTitle}</span>
+            <span className="truncate text-right text-zinc-400">{card.sourceTitle}</span>
           )}
         </div>
       </div>

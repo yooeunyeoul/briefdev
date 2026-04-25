@@ -32,7 +32,7 @@ export function CardItem({ card, position, total }: CardItemProps) {
 
   return (
     <article
-      className={`relative flex h-full w-full flex-col overflow-hidden rounded-3xl bg-gradient-to-br ${meta.tone} bg-zinc-900/95 p-7 text-zinc-50 shadow-2xl ring-1 ring-white/10`}
+      className={`relative flex min-h-[60vh] w-full flex-col overflow-hidden rounded-3xl bg-gradient-to-br ${meta.tone} bg-zinc-900/95 p-7 text-zinc-50 shadow-2xl ring-1 ring-white/10`}
     >
       <header className="flex items-center justify-between text-xs uppercase tracking-wider text-zinc-300">
         <span className="rounded-full bg-white/10 px-3 py-1 backdrop-blur-sm">

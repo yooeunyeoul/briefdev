@@ -88,14 +88,14 @@ export function CardSwiper({ cards, isAuthenticated }: CardSwiperProps) {
   return (
     <div className="flex flex-col gap-4">
       <div
-        className="relative h-[78vh] max-h-[640px] w-full select-none touch-pan-y"
+        className="relative w-full select-none touch-pan-y"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
       >
         <div
-          className="absolute inset-0 transition-transform"
+          className="transition-transform"
           style={{
             transform: `translateX(${drag}px) rotate(${drag * 0.02}deg)`,
             transitionDuration: drag === 0 ? '200ms' : '0ms',

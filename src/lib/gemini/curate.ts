@@ -100,8 +100,27 @@ export async function curate(
     )
   }
 
-  const result = await model.generateContent(userPrompt)
-  const text = result.response.text()
+  // Gemini occasionally returns 503 under high demand. Retry with backoff.
+  let lastErr: unknown
+  let text = ''
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const result = await model.generateContent(userPrompt)
+      text = result.response.text()
+      lastErr = undefined
+      break
+    } catch (err) {
+      lastErr = err
+      const msg = err instanceof Error ? err.message : String(err)
+      const transient =
+        msg.includes('503') || msg.includes('overloaded') || msg.includes('high demand')
+      if (!transient || attempt === 2) throw err
+      const wait = 2000 * (attempt + 1)
+      console.warn(`[curate] Gemini transient (attempt ${attempt + 1}); retrying in ${wait}ms`)
+      await new Promise((r) => setTimeout(r, wait))
+    }
+  }
+  if (lastErr) throw lastErr
 
   try {
     const parsed = JSON.parse(text)

@@ -1,13 +1,13 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { fetchHackerNewsTop } from '@/lib/sources/hackernews'
+import { fetchAllSources } from '@/lib/sources'
 import { curate } from '@/lib/gemini/curate'
 import { saveArticles, saveBundle } from '@/lib/db/bundles'
 
 export const dynamic = 'force-dynamic'
-// Vercel Hobby allows up to 300s for serverless. v3 fetches 30 article bodies.
+// Vercel Hobby allows up to 300s; v5 fetches multi-source pool + bodies via Jina.
 export const maxDuration = 300
 
-const PROMPT_VERSION = process.env.CURATION_PROMPT_VERSION ?? 'v4'
+const PROMPT_VERSION = process.env.CURATION_PROMPT_VERSION ?? 'v5'
 
 function isAuthorized(req: NextRequest): boolean {
   const secret = process.env.CRON_SECRET
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
   const startedAt = Date.now()
 
   try {
-    const articles = await fetchHackerNewsTop(30)
+    const { articles, stats: srcStats } = await fetchAllSources()
     const savedCount = await saveArticles(articles)
 
     const curation = await curate(articles, PROMPT_VERSION)
@@ -47,6 +47,7 @@ export async function GET(req: NextRequest) {
       stats: {
         articlesFetched: articles.length,
         articlesSaved: savedCount,
+        bySource: srcStats.bySource,
         cardsCurated: curation.cards.length,
         bundleId,
         bundleDate,

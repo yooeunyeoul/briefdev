@@ -16,7 +16,7 @@ const HnItemSchema = z.object({
 export type HnItem = z.infer<typeof HnItemSchema>
 
 export type RawArticle = {
-  source: 'hackernews'
+  source: string
   externalId: string
   title: string
   url: string
@@ -76,7 +76,7 @@ export async function fetchHackerNewsTop(limit = 30): Promise<RawArticle[]> {
     )
     .filter((it) => !isPaywalled(it.url))
     .map((it) => ({
-      source: 'hackernews' as const,
+      source: 'hackernews',
       externalId: String(it.id),
       title: it.title,
       url: it.url,

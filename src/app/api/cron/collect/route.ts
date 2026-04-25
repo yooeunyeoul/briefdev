@@ -4,9 +4,10 @@ import { curate } from '@/lib/gemini/curate'
 import { saveArticles, saveBundle } from '@/lib/db/bundles'
 
 export const dynamic = 'force-dynamic'
-export const maxDuration = 60
+// Vercel Hobby allows up to 300s for serverless. v3 fetches 30 article bodies.
+export const maxDuration = 300
 
-const PROMPT_VERSION = process.env.CURATION_PROMPT_VERSION ?? 'v2'
+const PROMPT_VERSION = process.env.CURATION_PROMPT_VERSION ?? 'v3'
 
 function isAuthorized(req: NextRequest): boolean {
   const secret = process.env.CRON_SECRET

@@ -36,11 +36,14 @@ async function loadCards(): Promise<LoadResult> {
 }
 
 function formatBundleDate(iso: string): string {
+  // bundle_date is YYYY-MM-DD in KST. Force Asia/Seoul so the rendered string
+  // matches the curator's day regardless of server timezone (Vercel runs UTC).
   const d = new Date(`${iso}T00:00:00+09:00`)
   return d.toLocaleDateString('ko-KR', {
     month: 'long',
     day: 'numeric',
     weekday: 'short',
+    timeZone: 'Asia/Seoul',
   })
 }
 
@@ -103,8 +106,9 @@ export default async function HomePage() {
         </div>
       )}
 
-      <footer className="mt-auto pt-8 text-center text-xs text-zinc-500">
-        한국 개발자를 위한 매일 5분 AI 트렌드
+      <footer className="mt-auto space-y-1 pt-8 text-center text-xs text-zinc-500">
+        <p>한국 개발자를 위한 매일 5분 AI 트렌드</p>
+        <p className="opacity-60">매일 새벽 05:00 KST 갱신 · 출처: Hacker News</p>
       </footer>
     </main>
   )

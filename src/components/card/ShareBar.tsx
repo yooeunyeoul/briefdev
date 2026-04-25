@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export type ShareBarProps = {
   url: string
@@ -8,6 +8,8 @@ export type ShareBarProps = {
   text: string
   cardId: string
 }
+
+type Status = 'idle' | 'sharing' | 'shared' | 'copied' | 'failed'
 
 async function trackShare(cardId: string) {
   try {
@@ -22,69 +24,140 @@ async function trackShare(cardId: string) {
   }
 }
 
+async function copyToClipboard(text: string): Promise<boolean> {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text)
+      return true
+    }
+  } catch {
+    /* fall through */
+  }
+  // Fallback: hidden textarea + execCommand (older browsers / non-secure contexts)
+  try {
+    const ta = document.createElement('textarea')
+    ta.value = text
+    ta.style.position = 'fixed'
+    ta.style.left = '-9999px'
+    document.body.appendChild(ta)
+    ta.select()
+    const ok = document.execCommand('copy')
+    document.body.removeChild(ta)
+    return ok
+  } catch {
+    return false
+  }
+}
+
 export function ShareBar({ url, title, text, cardId }: ShareBarProps) {
-  const [copied, setCopied] = useState(false)
+  const [status, setStatus] = useState<Status>('idle')
+  const [canNativeShare, setCanNativeShare] = useState(false)
+
+  useEffect(() => {
+    if (
+      typeof navigator !== 'undefined' &&
+      typeof navigator.share === 'function'
+    ) {
+      // canShare check is optional but more accurate
+      const data = { title, text, url }
+      try {
+        if (typeof navigator.canShare === 'function') {
+          setCanNativeShare(navigator.canShare(data))
+        } else {
+          setCanNativeShare(true)
+        }
+      } catch {
+        setCanNativeShare(true)
+      }
+    }
+  }, [title, text, url])
+
+  function flash(next: Status) {
+    setStatus(next)
+    setTimeout(() => setStatus('idle'), 2000)
+  }
 
   const shareText = `${title}\n\n${text}\n\n${url}`
 
-  async function onNativeShare() {
-    void trackShare(cardId)
-    if (typeof navigator !== 'undefined' && 'share' in navigator) {
+  async function onShare() {
+    setStatus('sharing')
+    if (canNativeShare) {
       try {
         await navigator.share({ title, text, url })
-      } catch {
-        // user cancelled
+        void trackShare(cardId)
+        flash('shared')
+        return
+      } catch (err) {
+        // AbortError = user cancelled, don't show as failed
+        const aborted =
+          err instanceof Error &&
+          (err.name === 'AbortError' || err.message.includes('cancel'))
+        if (aborted) {
+          setStatus('idle')
+          return
+        }
+        // Fall through to copy fallback
       }
+    }
+    // Fallback: copy
+    const ok = await copyToClipboard(shareText)
+    if (ok) {
+      void trackShare(cardId)
+      flash('copied')
     } else {
-      void onCopy()
+      flash('failed')
     }
   }
 
   async function onCopy() {
-    void trackShare(cardId)
-    try {
-      await navigator.clipboard.writeText(shareText)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 1800)
-    } catch {
-      // ignore
+    const ok = await copyToClipboard(shareText)
+    if (ok) {
+      void trackShare(cardId)
+      flash('copied')
+    } else {
+      flash('failed')
     }
   }
 
-  function onSlack() {
-    void trackShare(cardId)
-    // Slack message URL → opens Slack with pre-filled text on the user's last channel
-    const slackUrl = `https://slack.com/openid/connect?text=${encodeURIComponent(shareText)}`
-    void onCopy() // also copy as fallback
-    window.open(slackUrl, '_blank', 'noopener,noreferrer')
-  }
+  const primaryLabel =
+    status === 'sharing'
+      ? '공유 중...'
+      : status === 'shared'
+      ? '✅ 공유됨'
+      : status === 'copied'
+      ? '✅ 링크 복사됨'
+      : status === 'failed'
+      ? '⚠️ 다시 시도'
+      : canNativeShare
+      ? '📤 공유하기'
+      : '📤 링크 복사'
 
   return (
     <div className="flex flex-col gap-2">
       <p className="px-1 text-xs font-medium text-zinc-400">동료에게 공유</p>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="flex gap-2">
         <button
           type="button"
-          onClick={onNativeShare}
-          className="flex items-center justify-center gap-1 rounded-2xl bg-zinc-800 px-3 py-3 text-sm font-medium text-zinc-100 transition hover:bg-zinc-700 active:scale-[0.98]"
+          onClick={onShare}
+          disabled={status === 'sharing'}
+          className="flex-1 rounded-2xl bg-zinc-100 px-3 py-3 text-sm font-semibold text-zinc-900 transition active:scale-[0.98] disabled:opacity-60"
         >
-          📤 공유
-        </button>
-        <button
-          type="button"
-          onClick={onSlack}
-          className="flex items-center justify-center gap-1 rounded-2xl bg-zinc-800 px-3 py-3 text-sm font-medium text-zinc-100 transition hover:bg-zinc-700 active:scale-[0.98]"
-        >
-          💬 슬랙
+          {primaryLabel}
         </button>
         <button
           type="button"
           onClick={onCopy}
-          className="flex items-center justify-center gap-1 rounded-2xl bg-zinc-800 px-3 py-3 text-sm font-medium text-zinc-100 transition hover:bg-zinc-700 active:scale-[0.98]"
+          aria-label="링크 복사"
+          className="rounded-2xl bg-zinc-800 px-4 py-3 text-sm font-medium text-zinc-100 transition hover:bg-zinc-700 active:scale-[0.98]"
         >
-          {copied ? '✅ 복사됨' : '🔗 링크 복사'}
+          🔗
         </button>
       </div>
+      {!canNativeShare && (
+        <p className="px-1 text-[11px] text-zinc-500">
+          이 브라우저는 시스템 공유를 지원하지 않아 링크 복사로 동작합니다.
+        </p>
+      )}
     </div>
   )
 }

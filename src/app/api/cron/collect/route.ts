@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 // Vercel Hobby allows up to 300s; v5 fetches multi-source pool + bodies via Jina.
 export const maxDuration = 300
 
-const PROMPT_VERSION = process.env.CURATION_PROMPT_VERSION ?? 'v5'
+const PROMPT_VERSION = process.env.CURATION_PROMPT_VERSION ?? 'v6'
 
 function isAuthorized(req: NextRequest): boolean {
   const secret = process.env.CRON_SECRET

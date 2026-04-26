@@ -8,7 +8,8 @@ import { fetchArticleBodies, type ArticleBody } from '@/lib/sources/reader'
 const CardSchema = z.object({
   category: z.enum(['pick', 'tool', 'tip', 'deep', 'kr']),
   title: z.string().min(1).max(120),
-  summary: z.array(z.string()).length(3),
+  // 2-4 lines: short Korean blog posts sometimes only yield 2 substantive lines
+  summary: z.array(z.string()).min(2).max(4),
   whyMatters: z.string().min(10).max(220),
   url: z.string().url(),
   sourceTitle: z.string(),

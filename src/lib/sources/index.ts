@@ -13,7 +13,7 @@ export async function fetchAllSources(): Promise<{
   stats: AggregateStats
 }> {
   const [hn, rss, gh] = await Promise.all([
-    fetchHackerNewsTop(20),
+    fetchHackerNewsTop(12),
     fetchRssArticles(),
     fetchGithubTrendingAi(),
   ])

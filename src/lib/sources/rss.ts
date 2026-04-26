@@ -7,6 +7,7 @@ export type RssSourceConfig = {
 }
 
 export const RSS_SOURCES: RssSourceConfig[] = [
+  // --- Global AI / engineering ---
   {
     // ML engineering, models, training, inference
     name: 'huggingface',
@@ -24,6 +25,31 @@ export const RSS_SOURCES: RssSourceConfig[] = [
     name: 'theverge-ai',
     feedUrl: 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml',
     externalIdPrefix: 'theverge',
+  },
+  {
+    // Google AI / DeepMind announcements
+    name: 'google-ai',
+    feedUrl: 'https://blog.google/innovation-and-ai/technology/ai/rss/',
+    externalIdPrefix: 'google-ai',
+  },
+  // --- Korean dev community (페르소나 매칭 핵심) ---
+  {
+    // GeekNews (한국 HackerNews) — 한국 개발자 커뮤니티 화제
+    name: 'geeknews',
+    feedUrl: 'https://news.hada.io/rss/news',
+    externalIdPrefix: 'geeknews',
+  },
+  {
+    // 토스 기술 블로그 — 깊이 있는 엔지니어링
+    name: 'toss-tech',
+    feedUrl: 'https://toss.tech/rss.xml',
+    externalIdPrefix: 'toss',
+  },
+  {
+    // 카카오 기술 블로그
+    name: 'kakao-tech',
+    feedUrl: 'https://tech.kakao.com/blog/feed/',
+    externalIdPrefix: 'kakao',
   },
 ]
 
@@ -44,7 +70,9 @@ function extractAttr(block: string, tag: string, attr: string): string | undefin
 }
 
 function parseFeed(xml: string, source: RssSourceConfig): RawArticle[] {
-  const isAtom = xml.includes('<feed') && xml.includes('xmlns="http://www.w3.org/2005/Atom"')
+  const isAtom =
+    xml.includes('<feed') &&
+    /xmlns=['"]http:\/\/www\.w3\.org\/2005\/Atom['"]/.test(xml)
   const itemTag = isAtom ? 'entry' : 'item'
   const items = xml.match(new RegExp(`<${itemTag}[\\s\\S]*?</${itemTag}>`, 'g')) ?? []
 

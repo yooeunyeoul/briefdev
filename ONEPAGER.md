@@ -153,7 +153,9 @@ AI 사주/이미지 생성 영역은 "한 번 써보고 끝"인 일회성 가치
 - **Backend**: Next.js API Routes + Supabase (Auth + Postgres + RLS)
 - **LLM**: Google Gemini 2.5 Flash (무료 티어, 1M 컨텍스트, JSON Mode + 503 재시도)
 - **본문 추출**: Jina Reader (`r.jina.ai`) — 환각 방지의 핵심
-- **소스**: HackerNews + Hugging Face Blog + Simon Willison + The Verge AI + GitHub Trending
+- **소스 (8개)**:
+  - 글로벌 AI: HackerNews + Hugging Face Blog + Simon Willison + The Verge AI + Google AI Blog + GitHub Trending
+  - 한국 개발자 커뮤니티: GeekNews + 토스 기술 블로그 + 카카오 기술 블로그
 - **Cron**: Vercel Cron (매일 05:00 KST)
 - **Deploy**: Vercel
 
@@ -170,6 +172,7 @@ v2: + 페이월 도메인 차단
 v3: + Jina Reader 본문 추출 (환각 차단)
 v4: + 적합도 점수 임계값 + 가변 카드 수
 v5: + 다중 소스 + 다양성 + whyMatters "~을 하는 개발자에게" 형태
+v6: + 한국어 출처 4개 (GeekNews, 토스, 카카오, Google AI) + 'kr' 카테고리 활성화
 ```
 
 → "AI는 빠르게 만들지만, **무엇을 만들고 무엇을 안 만들지** 의 판단은 여전히 사람의 일."

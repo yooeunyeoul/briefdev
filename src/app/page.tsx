@@ -57,27 +57,32 @@ export default async function HomePage() {
   } = await supabase.auth.getUser()
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-4 pb-16 pt-8">
-      <header className="flex items-baseline justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
-            BriefDev
-          </p>
-          <h1 className="mt-1 text-2xl font-bold text-zinc-100">
-            오늘의 {result.ok ? result.cards.length : 0}장
-          </h1>
-        </div>
-        {result.ok && (
-          <time className="text-sm text-zinc-400">
-            {formatBundleDate(result.bundleDate)}
-          </time>
-        )}
+    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-5 px-4 pb-16 pt-8">
+      <header className="space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
+          BriefDev
+        </p>
+        <h1 className="text-[26px] font-bold leading-tight text-zinc-100 sm:text-3xl">
+          출근길 5분, 오늘의 AI 5장
+        </h1>
+        <p className="text-sm leading-relaxed text-zinc-400">
+          AI 도구를 쓰는 한국 개발자를 위해, 8개 소스에서 매일 새벽 큐레이션.
+        </p>
       </header>
 
-      <div className="flex items-center justify-end gap-3 text-xs text-zinc-500">
+      <div className="flex items-center justify-between border-y border-white/10 py-2.5 text-xs text-zinc-400">
+        <span>
+          {result.ok ? (
+            <>
+              {formatBundleDate(result.bundleDate)} · 오늘 {result.cards.length}장
+            </>
+          ) : (
+            '큐레이션 준비 중'
+          )}
+        </span>
         {user ? (
-          <>
-            <span className="truncate text-zinc-400">{user.email}</span>
+          <div className="flex items-center gap-2">
+            <span className="max-w-[140px] truncate text-zinc-500">{user.email}</span>
             <form action="/api/auth/signout" method="post">
               <button
                 type="submit"
@@ -86,7 +91,7 @@ export default async function HomePage() {
                 로그아웃
               </button>
             </form>
-          </>
+          </div>
         ) : (
           <Link
             href="/login"
@@ -110,9 +115,8 @@ export default async function HomePage() {
         </div>
       )}
 
-      <footer className="mt-auto space-y-1 pt-8 text-center text-xs text-zinc-500">
-        <p>한국 개발자를 위한 매일 5분 AI 트렌드</p>
-        <p className="opacity-60">매일 새벽 05:00 KST 갱신 · 출처: Hacker News</p>
+      <footer className="mt-auto pt-8 text-center text-xs text-zinc-500">
+        <p>매일 05:00 KST 갱신 · 한국·글로벌 8개 소스 · Gemini 2.5 Flash 큐레이션</p>
       </footer>
     </main>
   )

@@ -66,7 +66,7 @@ export default async function HomePage() {
           출근길 5분, 오늘의 AI 5장
         </h1>
         <p className="text-sm leading-relaxed text-zinc-400">
-          AI 도구를 쓰는 한국 개발자를 위해, 8개 소스에서 매일 새벽 큐레이션.
+          본문 발췌로 할루시네이션 차단 — 한국 개발자 큐레이션
         </p>
       </header>
 
@@ -116,7 +116,7 @@ export default async function HomePage() {
       )}
 
       <footer className="mt-auto pt-8 text-center text-xs text-zinc-500">
-        <p>매일 05:00 KST 갱신 · 한국·글로벌 8개 소스 · Gemini 2.5 Flash 큐레이션</p>
+        <p>매일 05:00 KST 갱신 · 한국·글로벌 8개 소스 본문 발췌 · Gemini 2.5 Flash 큐레이션</p>
       </footer>
     </main>
   )

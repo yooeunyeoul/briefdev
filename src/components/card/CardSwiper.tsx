@@ -6,6 +6,8 @@ import { CardItem } from './CardItem'
 import { ShareBar } from './ShareBar'
 
 const SWIPE_THRESHOLD = 60 // px
+const SWIPE_HINT_KEY = 'briefdev:swipe-hint-seen'
+const SWIPE_HINT_TIMEOUT_MS = 4000
 
 export type CardSwiperProps = {
   cards: ViewableCard[]
@@ -29,6 +31,7 @@ async function trackView(cardId: string, readSeconds: number) {
 export function CardSwiper({ cards, isAuthenticated, siteUrl }: CardSwiperProps) {
   const [index, setIndex] = useState(0)
   const [drag, setDrag] = useState(0)
+  const [showHint, setShowHint] = useState(false)
   const startX = useRef<number | null>(null)
   const enteredAt = useRef<number>(Date.now())
   const total = cards.length
@@ -45,6 +48,36 @@ export function CardSwiper({ cards, isAuthenticated, siteUrl }: CardSwiperProps)
     }
   }, [index, cards, isAuthenticated])
 
+  // First-time swipe hint — auto-hide after 4s, never show again
+  useEffect(() => {
+    if (total < 2) return
+    try {
+      if (localStorage.getItem(SWIPE_HINT_KEY) === '1') return
+    } catch {
+      return
+    }
+    setShowHint(true)
+    const timer = setTimeout(() => {
+      setShowHint(false)
+      try {
+        localStorage.setItem(SWIPE_HINT_KEY, '1')
+      } catch {
+        // ignore quota / private mode
+      }
+    }, SWIPE_HINT_TIMEOUT_MS)
+    return () => clearTimeout(timer)
+  }, [total])
+
+  function dismissHint() {
+    if (!showHint) return
+    setShowHint(false)
+    try {
+      localStorage.setItem(SWIPE_HINT_KEY, '1')
+    } catch {
+      // ignore
+    }
+  }
+
   function next() {
     setIndex((i) => Math.min(i + 1, total - 1))
   }
@@ -60,6 +93,7 @@ export function CardSwiper({ cards, isAuthenticated, siteUrl }: CardSwiperProps)
   function onPointerDown(e: PointerEvent<HTMLDivElement>) {
     if (isInteractive(e.target)) return // let clicks through
     startX.current = e.clientX
+    dismissHint()
   }
   function onPointerMove(e: PointerEvent<HTMLDivElement>) {
     if (startX.current === null) return
@@ -88,7 +122,7 @@ export function CardSwiper({ cards, isAuthenticated, siteUrl }: CardSwiperProps)
   const card = cards[index]
 
   return (
-    <div className="flex flex-col gap-4 pb-20">
+    <div className="flex flex-col gap-4 pb-28">
       <div
         className="relative w-full select-none touch-pan-y"
         onPointerDown={onPointerDown}
@@ -105,6 +139,24 @@ export function CardSwiper({ cards, isAuthenticated, siteUrl }: CardSwiperProps)
         >
           <CardItem card={card} position={index} total={total} />
         </div>
+
+        {/* First-time swipe hint — fades after first drag or 4s */}
+        {showHint && (
+          <div
+            className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2
+                       flex items-center justify-center gap-3 px-4
+                       animate-[swipe-hint-fade_4s_ease-in-out_forwards]"
+            aria-hidden="true"
+          >
+            <div className="flex items-center gap-2 rounded-full bg-zinc-900/80 px-4 py-2
+                            text-sm text-zinc-100 backdrop-blur-md shadow-2xl
+                            animate-[swipe-hint-wiggle_1.4s_ease-in-out_infinite]">
+              <span aria-hidden>👈</span>
+              <span>좌우로 밀어보세요</span>
+              <span aria-hidden>👉</span>
+            </div>
+          </div>
+        )}
       </div>
 
       <ShareBar
@@ -114,9 +166,14 @@ export function CardSwiper({ cards, isAuthenticated, siteUrl }: CardSwiperProps)
         cardId={card.id}
       />
 
-      {/* Sticky pagination — pinned to viewport bottom so the buttons don't
-          jump as cards have varying heights. */}
-      <div className="sticky bottom-3 z-20 mx-auto flex items-center gap-3 rounded-full border border-white/10 bg-zinc-900/85 px-2 py-1.5 shadow-2xl backdrop-blur-md">
+      {/* Fixed bottom pagination — anchored to viewport, never jumps with card height.
+          Respects iOS safe area so it sits above the home indicator. */}
+      <div
+        className="fixed bottom-0 left-1/2 z-50 -translate-x-1/2
+                   mb-[max(0.75rem,env(safe-area-inset-bottom))]
+                   flex items-center gap-3 rounded-full border border-white/10
+                   bg-zinc-900/85 px-2 py-1.5 shadow-2xl backdrop-blur-md"
+      >
         <button
           type="button"
           onClick={prev}

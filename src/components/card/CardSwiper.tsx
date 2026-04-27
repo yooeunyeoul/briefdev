@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, type PointerEvent } from 'react'
 import type { ViewableCard } from '@/lib/db/types'
 import { CardItem } from './CardItem'
-import { ShareBar } from './ShareBar'
+import { useShare } from './useShare'
 
 const SWIPE_THRESHOLD = 60 // px
 const SWIPE_HINT_KEY = 'briefdev:swipe-hint-seen'
@@ -120,6 +120,32 @@ export function CardSwiper({ cards, isAuthenticated, siteUrl }: CardSwiperProps)
   }
 
   const card = cards[index]
+  const { status: shareStatus, canNativeShare, share } = useShare({
+    url: `${siteUrl}/c/${card.id}`,
+    title: card.title,
+    text: card.whyMatters,
+    cardId: card.id,
+  })
+
+  const shareIcon =
+    shareStatus === 'sharing'
+      ? '⋯'
+      : shareStatus === 'shared' || shareStatus === 'copied'
+      ? '✅'
+      : shareStatus === 'failed'
+      ? '⚠️'
+      : '📤'
+
+  const shareAria =
+    shareStatus === 'shared'
+      ? '공유됨'
+      : shareStatus === 'copied'
+      ? '링크 복사됨'
+      : shareStatus === 'failed'
+      ? '공유 실패 — 다시 시도'
+      : canNativeShare
+      ? '동료에게 공유'
+      : '링크 복사'
 
   return (
     <div className="flex flex-col gap-4 pb-28">
@@ -159,19 +185,13 @@ export function CardSwiper({ cards, isAuthenticated, siteUrl }: CardSwiperProps)
         )}
       </div>
 
-      <ShareBar
-        url={`${siteUrl}/c/${card.id}`}
-        title={card.title}
-        text={card.whyMatters}
-        cardId={card.id}
-      />
-
-      {/* Fixed bottom pagination — anchored to viewport, never jumps with card height.
-          Respects iOS safe area so it sits above the home indicator. */}
+      {/* Fixed bottom action bar — anchored to viewport, never jumps with card height.
+          Respects iOS safe area so it sits above the home indicator.
+          Combines pagination + share into a single control surface. */}
       <div
         className="fixed bottom-0 left-1/2 z-50 -translate-x-1/2
                    mb-[max(0.75rem,env(safe-area-inset-bottom))]
-                   flex items-center gap-3 rounded-full border border-white/10
+                   flex items-center gap-2 rounded-full border border-white/10
                    bg-zinc-900/85 px-2 py-1.5 shadow-2xl backdrop-blur-md"
       >
         <button
@@ -183,7 +203,7 @@ export function CardSwiper({ cards, isAuthenticated, siteUrl }: CardSwiperProps)
         >
           ←
         </button>
-        <div className="flex gap-1.5">
+        <div className="flex gap-1.5 px-1">
           {cards.map((_, i) => (
             <button
               key={i}
@@ -204,6 +224,17 @@ export function CardSwiper({ cards, isAuthenticated, siteUrl }: CardSwiperProps)
           className="rounded-full bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-900 transition disabled:opacity-30"
         >
           →
+        </button>
+        <div className="mx-1 h-5 w-px bg-white/10" aria-hidden />
+        <button
+          type="button"
+          onClick={share}
+          disabled={shareStatus === 'sharing'}
+          aria-label={shareAria}
+          title={shareAria}
+          className="rounded-full bg-zinc-800 px-3 py-1.5 text-sm text-zinc-100 transition hover:bg-zinc-700 disabled:opacity-50"
+        >
+          {shareIcon}
         </button>
       </div>
     </div>

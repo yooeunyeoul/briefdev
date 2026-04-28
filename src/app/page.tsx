@@ -116,7 +116,7 @@ export default async function HomePage() {
       )}
 
       <footer className="mt-auto pt-8 text-center text-xs text-zinc-500">
-        <p>매일 05:00 KST 갱신 · 한국·글로벌 8개 소스 본문 발췌 · Gemini 2.5 Flash 큐레이션</p>
+        <p>매일 05:00 KST 갱신 · 한국·글로벌 9개 소스 본문 발췌 · Gemini 2.5 Flash 큐레이션</p>
       </footer>
     </main>
   )

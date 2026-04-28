@@ -11,7 +11,7 @@
 
 ## 🎯 한 문장 요약
 
-매일 새벽 5시(KST), 글로벌 AI 5곳 (HackerNews / Hugging Face Blog / Simon Willison / The Verge AI / Google AI Blog) + 한국 개발자 커뮤니티 3곳 (GeekNews / 토스 / 카카오) — 총 8개 소스에서 모은 30~60개의 글을 Gemini가 본문 발췌 검증 후 카드 1~5장으로 정리하는 모바일 퍼스트 웹앱.
+매일 새벽 5시(KST), 글로벌 AI 6곳 (HackerNews / Hugging Face Blog / Simon Willison / The Verge AI / Google AI Blog / GitHub Trending) + 한국 개발자 커뮤니티 3곳 (GeekNews / 토스 / 카카오) — 총 9개 소스에서 모은 30~60개의 글을 Gemini가 본문 발췌 검증 후 카드 1~5장으로 정리하는 모바일 퍼스트 웹앱.
 
 페르소나: **Claude Code, Cursor 등 AI 코딩 도구를 적극 활용하는 한국 IT 직장인 (3-8년차 개발자)**.
 

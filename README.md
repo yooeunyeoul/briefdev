@@ -30,7 +30,7 @@ git clone https://github.com/yooeunyeoul/briefdev.git
 cd briefdev
 npm install
 cp .env.local.example .env.local
-# .env.local에 5개 키 채우기 (아래 'Environment Variables' 참고)
+# .env.local에 6개 키 채우기 (아래 'Environment Variables' 참고)
 
 # Supabase SQL Editor에서 docs/02-design/schema.sql 실행
 # → articles, bundles, cards, user_views 테이블 + RLS 정책 생성
@@ -59,7 +59,7 @@ curl "http://localhost:3000/api/cron/collect?token=$CRON_SECRET"
 
 ```bash
 vercel link --project briefdev
-vercel env add GEMINI_API_KEY production         # 5개 변수 모두
+vercel env add GEMINI_API_KEY production         # 6개 변수 모두
 vercel --prod
 ```
 
@@ -177,7 +177,7 @@ v2: + 페이월 도메인 차단 (코드 + 프롬프트 양쪽)
    잔여 문제: 본문 추측 환각은 그대로
 
 v3: + Jina Reader로 원문 본문(markdown) 추출 → 본문 근거 요약
-   ✅ "120개 작업 중 110개 해결" — 본문에 적힌 실제 수치
+   ✅ 본문에 적힌 실제 수치/사양만 인용 (LLM 추측 차단)
    ✅ NO_BODY 글은 큐레이션에서 자동 제외
    잔여 문제: 5장 강제 채움 → 부적합 글 끼어듦 (10GbE 어댑터 등장)
 
